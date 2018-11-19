@@ -1,7 +1,15 @@
 package com.example.android.whatevertrash;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView.LayoutManager newslayoutmanager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
 
         super.onCreate(savedInstanceState);
@@ -39,23 +48,60 @@ public class MainActivity extends AppCompatActivity {
         final TextView newstitle = findViewById(R.id.newstitle);
         final TextView newsdescription = findViewById(R.id.newsdescription);
         final FloatingActionButton b = findViewById(R.id.floatingActionButton);
-        new MainActivity.Asynchttptask().execute(News_url);
+        final SwipeRefreshLayout refresh = findViewById(R.id.swiperefresh);
+        final NotificationManagerCompat notificationmanager = NotificationManagerCompat.from(this);
+        final Toast toast = Toast.makeText(this, "No Internet Connection, Please refresh", Toast.LENGTH_SHORT);
+
+        createNotificationChannel();
 
         b.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                Intent aboutintent = new Intent(getApplicationContext(), aboutpage.class);
+                startActivity(aboutintent);
+            }
+        });
+
+        final Notification refreshfailBuilder = new NotificationCompat.Builder(this, "CHANNEL_ID_1")
+                .setSmallIcon(R.drawable.ic_add_black_24dp)
+                .setContentTitle("Sorry")
+                .setContentText("No Internet Connection, Please refresh")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .build();
+
+        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new MainActivity.Asynchttptask().execute(News_url);
                 if (newsstream == null || newsstream.length == 0) {
-                    console.setText("No Internet Connection, Please refresh!");
-                    new MainActivity.Asynchttptask().execute(News_url);
+                    notificationmanager.notify(10, refreshfailBuilder);
+                    refresh.setRefreshing(false);
+                    toast.show();
                 } else {
-                    console.setText("All is Well.");
                     newsrecycleview = findViewById(R.id.newsrecycleview);
                     newsadaptor = new newsadaptor(newsstream);
                     newslayoutmanager = new LinearLayoutManager(getBaseContext());
                     newsrecycleview.setAdapter(newsadaptor);
                     newsrecycleview.setLayoutManager(newslayoutmanager);
+                    refresh.setRefreshing(false);
                 }
             }
         });
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelid = "CHANNEL_ID_1";
+            String channelname = "channel_1";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(channelid, channelname, NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("default channel for notification");
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     public class Asynchttptask extends AsyncTask<String, Void, String> {
