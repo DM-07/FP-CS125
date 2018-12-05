@@ -11,6 +11,6 @@ public class aboutpage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.aboutpage);
         final TextView about = findViewById(R.id.about);
-        about.setText("Powered by NEWS API");
+        about.setText("All the discriptions are from https://admissions.illinois.edu/Visit/Campus-Visits/self-guided-quad");
     }
 }

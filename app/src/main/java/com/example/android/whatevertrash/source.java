@@ -11,10 +11,15 @@ import java.net.URL;
 public class source {
     String title;
     String description;
-    String url;
-    public source(String title, String description, String url) {
+    double latitude;
+    double longitude;
+    float[] distance = {999999, 0, 0};
+    public source(String title, String description, double latitude, double longitude) {
         this.title = title;
         this.description = description;
-        this.url = url;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 }
+
+
