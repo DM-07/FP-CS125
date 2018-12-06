@@ -35,7 +35,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.ScrollingMovementMethod;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final TextView locationname = findViewById(R.id.locationname);
         final FloatingActionButton b = findViewById(R.id.floatingActionButton);
         final NotificationManagerCompat notificationmanager = NotificationManagerCompat.from(this);
-        final Toast toast = Toast.makeText(this, "Getting GPS data now......", Toast.LENGTH_SHORT);
+        final Toast toast = Toast.makeText(this, "Getting GPS data now......", Toast.LENGTH_LONG);
 
         createNotificationChannel();
 
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.appNavigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if (newsstream[0].distance[0] >= 9999999999) {
+        if (locationnow.getText() == null || locationnow.getText().length() == 0) {
             toast.show();
         }
 
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         locationmark = i;
                     }
                 }
-                if (mindistance < 500 && !locationname.getText().equals(newsstream[locationmark].title)) {
+                if (mindistance < 100 && !locationname.getText().equals(newsstream[locationmark].title)) {
                     descriptioncard.setVisibility(View.VISIBLE);
                     ObjectAnimator fadeanim = ObjectAnimator.ofFloat(descriptioncard, View.ALPHA, 1.0f, 0.0f);
                     fadeanim.setDuration(1000);
@@ -111,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     locationname.setText(newsstream[locationmark].title);
                     description.setText(newsstream[locationmark].description);
                     fadeset.reverse();
-
                 }
             }
 
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         newslayoutmanager = new LinearLayoutManager(getBaseContext());
         newsrecycleview.setAdapter(newsadaptor);
         newsrecycleview.setLayoutManager(newslayoutmanager);
+
 
         final Notification refreshfailBuilder = new NotificationCompat.Builder(this, "CHANNEL_ID_1")
                 .setSmallIcon(R.drawable.ic_add_black_24dp)
