@@ -13,12 +13,14 @@ public class source {
     String description;
     double latitude;
     double longitude;
+    boolean alreadyhere;
     float[] distance = {999999, 0, 0};
-    public source(String title, String description, double latitude, double longitude) {
+    public source(String title, String description, double latitude, double longitude, boolean alreadyhere) {
         this.title = title;
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.alreadyhere = alreadyhere;
     }
 }
 

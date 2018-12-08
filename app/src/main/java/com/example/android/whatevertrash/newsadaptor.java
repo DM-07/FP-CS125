@@ -37,6 +37,9 @@ public class newsadaptor extends RecyclerView.Adapter<newsadaptor.newsholder>{
     public void onBindViewHolder(@NonNull final newsholder newsholder, final int i) {
         newsholder.title.setText(list[i].title);
         newsholder.distance.setText(String.valueOf(list[i].distance[0]) + " M");
+        if (list[i].alreadyhere == true) {
+            newsholder.checkBox.setChecked(true);
+        }
         newsholder.cardconstraint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,11 +72,13 @@ public class newsadaptor extends RecyclerView.Adapter<newsadaptor.newsholder>{
         TextView title, description, distance;
         CardView cardView;
         ConstraintLayout cardconstraint;
+        CheckBox checkBox;
         public newsholder(View view) {
             super(view);
             title = view.findViewById(R.id.newstitle);
             distance = view.findViewById(R.id.newsdescription);
             cardView = view.findViewById(R.id.locationcard);
+            checkBox = view.findViewById(R.id.checkBox);
             cardconstraint = view.findViewById(R.id.cardconstraint);
             adaptorcontext = view.getContext();
         }
