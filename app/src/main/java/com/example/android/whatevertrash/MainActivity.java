@@ -8,6 +8,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.v7.widget.SearchView;
 import android.location.Location;
@@ -39,14 +40,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -60,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LocationManager locationManager;
     private LocationListener locationListener;
 
+
+
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +85,99 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final FloatingActionButton b = findViewById(R.id.floatingActionButton);
         final NotificationManagerCompat notificationmanager = NotificationManagerCompat.from(this);
         final Toast toast = Toast.makeText(this, "Getting Your Location data now......", Toast.LENGTH_LONG);
+
+        //These are the declares for the note taking interface.
+        final EditText editUserNote = findViewById(R.id.editUserNote);
+        final TextView viewUserNote = findViewById(R.id.viewUserNote);
+        final Button editNoteButton = findViewById(R.id.editNoteButton);
+        final Button saveNoteButton = findViewById(R.id.saveNoteButton);
+        final Button showUserNote = findViewById(R.id.showUserNote);
+        final Button closeNoteButton = findViewById(R.id.closeNoteButton);
+
+
+
+        //This button will open up an edit text box for the user to input into.
+        editNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String userInput = editUserNote.getText().toString();
+            }
+        });
+
+        //This button will save the note to a text file.
+        //Need to set path name.
+        //Probably should change this to just use a single file and go line by line.
+        saveNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    String toSave = editUserNote.getText().toString();
+                    if (!toSave.trim().equals("")) {
+                        File file = new File("");
+                        if (!file.exists()) {
+                            file.createNewFile();
+                        }
+                        FileWriter fileWriter = new FileWriter(file.getName(), true);
+                        BufferedWriter writeOut = new BufferedWriter(fileWriter);
+                        writeOut.write(toSave);
+                        writeOut.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+
+
+        //This list will store user notes.
+        final List<String> userNotes = new ArrayList<>();
+
+        //This will be the notes file.
+        File notesFile = new File("","notes.txt");
+
+        try {
+            if (!notesFile.exists()) {
+                notesFile.createNewFile();
+            }
+            BufferedReader br = new BufferedReader(new FileReader(notesFile));
+            String line;
+            int index = 0;
+            while ((line = br.readLine()) != null) {
+                userNotes.set(index, line);
+                index++;
+            }
+            br.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        //This maps all the titles to integers.  I believe this is needed because of how
+        //newsstream is altered.
+        final Map<String, Integer>  listMap = new HashMap<>();
+        for (int j = 0; j < newsstream.length; j++ ) {
+            listMap.put(newsstream[j].title, j);
+        }
+        showUserNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //show text box with note with a button underneath that when clicked will
+                //make the note editable and change the button to a save note button.
+                //will add a close view button too
+                //Can we add something here that makes the background dark?  Maybe just make this
+                //take up the whole screen?
+                viewUserNote.setVisibility(View.VISIBLE);
+                editNoteButton.setVisibility(View.VISIBLE);
+                saveNoteButton.setVisibility(View.VISIBLE);
+                closeNoteButton.setVisibility(View.VISIBLE);
+                viewUserNote.setText(userNotes.get(listMap.get(newsstream[0].title)));
+            }
+        });
+
+
 
         createNotificationChannel();
 
