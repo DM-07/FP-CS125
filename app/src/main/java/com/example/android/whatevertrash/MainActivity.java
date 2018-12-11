@@ -58,21 +58,15 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     source[] newsstream;
     RecyclerView newsrecycleview;
     newsadaptor newsadaptor;
     RecyclerView.LayoutManager newslayoutmanager;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
-
     private LocationManager locationManager;
     private LocationListener locationListener;
-
-
-
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,48 +89,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final Button closeNoteButton = findViewById(R.id.closeNoteButton);
 
 
-
-        //This button will open up an edit text box for the user to input into.
-        editNoteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String userInput = editUserNote.getText().toString();
-            }
-        });
-
-        //This button will save the note to a text file.
-        //Need to set path name.
-        //Probably should change this to just use a single file and go line by line.
-        saveNoteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    String toSave = editUserNote.getText().toString();
-                    if (!toSave.trim().equals("")) {
-                        File file = new File("");
-                        if (!file.exists()) {
-                            file.createNewFile();
-                        }
-                        FileWriter fileWriter = new FileWriter(file.getName(), true);
-                        BufferedWriter writeOut = new BufferedWriter(fileWriter);
-                        writeOut.write(toSave);
-                        writeOut.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        });
-
-
-
         //This list will store user notes.
+        //Auto fills in case of empty notes file.
         final List<String> userNotes = new ArrayList<>();
+        for (int i = 0; i < newsstream.length; i++) {
+            userNotes.set(i, "Enter your own notes here!");
+        }
 
         //This will be the notes file.
-        File notesFile = new File("","notes.txt");
+        File dataDir = Environment.getDataDirectory();
+        final File notesFile = new File(dataDir,"notes.txt");
 
+        //This will try to open the notes file and add each line to a list entry
         try {
             if (!notesFile.exists()) {
                 notesFile.createNewFile();
@@ -161,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for (int j = 0; j < newsstream.length; j++ ) {
             listMap.put(newsstream[j].title, j);
         }
+
+        //This button will show the user notes for whichever element is in the 0 position
+        //in the newsstream array.
         showUserNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -170,17 +137,76 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //Can we add something here that makes the background dark?  Maybe just make this
                 //take up the whole screen?
                 viewUserNote.setVisibility(View.VISIBLE);
+                editUserNote.setVisibility(View.INVISIBLE);
+                saveNoteButton.setVisibility(View.INVISIBLE);
                 editNoteButton.setVisibility(View.VISIBLE);
-                saveNoteButton.setVisibility(View.VISIBLE);
                 closeNoteButton.setVisibility(View.VISIBLE);
+                showUserNote.setVisibility(View.INVISIBLE);
                 viewUserNote.setText(userNotes.get(listMap.get(newsstream[0].title)));
             }
         });
 
+        //This button will open up an edit text box for the user to input into.
+        editNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editUserNote.setText(userNotes.get(listMap.get(newsstream[0].title)));
+                viewUserNote.setVisibility(View.INVISIBLE);
+                editUserNote.setVisibility(View.VISIBLE);
+                saveNoteButton.setVisibility(View.VISIBLE);
+                editNoteButton.setVisibility(View.INVISIBLE);
+                closeNoteButton.setVisibility(View.VISIBLE);
+                showUserNote.setVisibility(View.INVISIBLE);
+            }
+        });
 
+        //This button will save the note to a text file.
+        //Need to set path name.
+        //Probably should change this to just use a single file and go line by line.
+        saveNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    String toSave = editUserNote.getText().toString();
+                    if (!toSave.trim().equals("")) {
+                        userNotes.set(listMap.get(newsstream[0].title), toSave);
+                        FileWriter fileWriter = new FileWriter(notesFile);
+                        BufferedWriter writeOut = new BufferedWriter(fileWriter);
+                        for (int i = 0; i < newsstream.length; i++) {
+                            writeOut.write(userNotes.get(i));
+                        }
+                        writeOut.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                viewUserNote.setVisibility(View.VISIBLE);
+                editUserNote.setVisibility(View.INVISIBLE);
+                saveNoteButton.setVisibility(View.INVISIBLE);
+                editNoteButton.setVisibility(View.VISIBLE);
+                closeNoteButton.setVisibility(View.VISIBLE);
+                showUserNote.setVisibility(View.INVISIBLE);
+                viewUserNote.setText(userNotes.get(listMap.get(newsstream[0].title)));
+            }
+
+        });
+
+        //This is the close note button, should just close everything out.  Should not save anything.
+        closeNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewUserNote.setVisibility(View.INVISIBLE);
+                editUserNote.setVisibility(View.INVISIBLE);
+                saveNoteButton.setVisibility(View.INVISIBLE);
+                editNoteButton.setVisibility(View.INVISIBLE);
+                closeNoteButton.setVisibility(View.INVISIBLE);
+                showUserNote.setVisibility(View.VISIBLE);
+                viewUserNote.setText("");
+                editUserNote.setText("");
+            }
+        });
 
         createNotificationChannel();
-
         drawerLayout = findViewById(R.id.appdrawer);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
