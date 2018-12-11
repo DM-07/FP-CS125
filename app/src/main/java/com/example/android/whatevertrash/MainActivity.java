@@ -8,6 +8,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.support.v7.widget.SearchView;
 import android.location.Location;
 import android.location.LocationListener;
@@ -40,6 +41,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.R.color;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LocationListener locationListener;
 
 
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,13 +88,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final Button saveNoteButton = findViewById(R.id.saveNoteButton);
         final Button showUserNote = findViewById(R.id.showUserNote);
         final Button closeNoteButton = findViewById(R.id.closeNoteButton);
+        viewUserNote.setVisibility(View.INVISIBLE);
+        editUserNote.setVisibility(View.INVISIBLE);
+        saveNoteButton.setVisibility(View.INVISIBLE);
+        editNoteButton.setVisibility(View.INVISIBLE);
+        closeNoteButton.setVisibility(View.INVISIBLE);
+        showUserNote.setVisibility(View.VISIBLE);
+
+        viewUserNote.setTextColor(Color.BLACK);
+        viewUserNote.setBackgroundColor(Color.WHITE);
+        editUserNote.setTextColor(Color.BLACK);
+        editUserNote.setBackgroundColor(Color.WHITE);
 
 
+        preparedata();
         //This list will store user notes.
         //Auto fills in case of empty notes file.
-        final List<String> userNotes = new ArrayList<>();
+        final ArrayList<String> userNotes = new ArrayList<String>();
         for (int i = 0; i < newsStream.length; i++) {
-            userNotes.set(i, "Enter your own notes here!");
+            userNotes.add("Enter your own notes here!");
         }
 
         //This will be the notes file.
