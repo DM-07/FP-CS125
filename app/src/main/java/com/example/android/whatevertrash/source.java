@@ -1,14 +1,17 @@
 package com.example.android.whatevertrash;
 
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class source {
+public class source implements Serializable {
     String title;
     String description;
     double latitude;

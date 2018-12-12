@@ -13,4 +13,5 @@ public class aboutpage extends AppCompatActivity {
         final TextView about = findViewById(R.id.about);
         about.setText("Made by jiayuz4 and cbento1" + "\n" + "All the discriptions are from https://admissions.illinois.edu/Visit/Campus-Visits/self-guided-quad");
     }
+
 }

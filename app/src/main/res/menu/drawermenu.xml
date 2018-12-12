@@ -4,8 +4,8 @@
     tools:showIn="navigation_view">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/draweritem"
-            android:title="Item" />
+            android:id="@+id/drawernote"
+            android:title="Notes" />
         <item
             android:id="@+id/drawerabout"
             android:title="About" />

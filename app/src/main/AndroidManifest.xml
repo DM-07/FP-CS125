@@ -36,6 +36,8 @@
             android:parentActivityName=".MainActivity"></activity>
         <activity android:name=".descriptionpage"
             android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".notetaking"
+            android:parentActivityName=".MainActivity"></activity>
     </application>
 
 </manifest>
