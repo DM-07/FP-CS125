@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,31 +43,41 @@ public class notetaking extends AppCompatActivity {
 
 
         //This list will store user notes.
-        //Auto fills in case of empty notes file.
         final ArrayList<String> userNotes = new ArrayList<String>();
-        for (int i = 0; i < temp.length; i++) {
-            userNotes.add("Enter your own notes here!");
+
+
+        //This will be the notes file.  We check to see if it exists.
+        //File dataDir = Environment.getDataDirectory();
+        final File notesFile = new File(getFilesDir(),"notes.txt");
+        boolean saveExists = false;
+        if (notesFile.exists()) {
+            saveExists = true;
         }
-
-        //This will be the notes file.
-        File dataDir = Environment.getDataDirectory();
-        final File notesFile = new File(dataDir,"notes.txt");
-
         //This will try to open the notes file and add each line to a list entry
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(notesFile));
-            String line;
-            int index = 0;
-            while ((line = br.readLine()) != null) {
-                userNotes.set(index, line);
-                index++;
+        if (saveExists) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(notesFile));
+                String line;
+                int index = 0;
+                while ((line = br.readLine()) != null) {
+                    userNotes.add(index, line);
+                    index++;
+                }
+                br.close();
+                if (index == 0) {
+                    for (int i = 0; i < temp.length; i++) {
+                        userNotes.add(i,"Enter your own notes here!");
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            br.close();
+        } else {
+            //if file doesn't exist creates default list of entries.
+            for (int i = 0; i < temp.length; i++) {
+                userNotes.add(i,"Enter your own notes here!");
+            }
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
 
         //This maps all the titles to integers.  I believe this is needed because of how
         //newsStream is altered.
@@ -75,7 +86,13 @@ public class notetaking extends AppCompatActivity {
             listMap.put(temp[j].title, j);
         }
 
-        editUserNote.setText(userNotes.get(listMap.get(temp[0].title)));
+        try {
+            editUserNote.setText(userNotes.get(listMap.get(temp[0].title)));
+            viewUserNote.setText(userNotes.get(listMap.get(temp[0].title)));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            throw e;
+        }
 
         notelayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,26 +107,27 @@ public class notetaking extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     String toSave = editUserNote.getText().toString();
-                    if (!toSave.trim().equals("")) {
                         try {
                             userNotes.set(listMap.get(temp[0].title), toSave);
                         } catch (NullPointerException e) {
                             e.printStackTrace();
                             throw e;
                         }
-                        FileWriter fileWriter = new FileWriter(notesFile);
+                        FileWriter fileWriter = new FileWriter(notesFile, false);
                         BufferedWriter writeOut = new BufferedWriter(fileWriter);
                         for (int i = 0; i < temp.length; i++) {
                             writeOut.write(userNotes.get(i));
+                            writeOut.newLine();
                         }
                         writeOut.close();
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 viewUserNote.setVisibility(View.VISIBLE);
                 editUserNote.setVisibility(View.GONE);
+
                 try {
+                    editUserNote.setText(userNotes.get(listMap.get(temp[0].title)));
                     viewUserNote.setText(userNotes.get(listMap.get(temp[0].title)));
                 } catch (NullPointerException e) {
                     e.printStackTrace();
